@@ -1,0 +1,489 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
+
+const year = new Date().getFullYear();
+---
+
+<Base title={`${site.name} · ${site.role}`} description={site.intro}>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top">{site.name}</a>
+      <nav aria-label="Sections">
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap">
+        <div class="panel hero-card">
+          <p class="eyebrow">{site.role} · {site.location}</p>
+          <h1>{site.name}</h1>
+          <p class="lead">{site.intro}</p>
+          <div class="actions">
+            <a class="button primary" href="#work">See my work</a>
+            <a class="button" href={`mailto:${site.email}`}>Get in touch</a>
+          </div>
+        </div>
+        <p class="scroll-hint">
+          <span aria-hidden="true">↓</span> Scroll. The worms only move when you do.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="work" aria-labelledby="work-title">
+      <div class="wrap">
+        <h2 class="section-title" id="work-title">
+          <span><span class="num">01</span>Selected work</span>
+        </h2>
+        <ul class="projects" role="list">
+          {
+            site.projects.map((project) => (
+              <li class="panel project">
+                <div class="project-head">
+                  <h3>{project.title}</h3>
+                  <span class="year">{project.year}</span>
+                </div>
+                <p>{project.description}</p>
+                <ul class="tags" role="list">
+                  {project.tags.map((tag) => <li>{tag}</li>)}
+                </ul>
+                {project.links.length > 0 && (
+                  <p class="project-links">
+                    {project.links.map((link) => (
+                      <a href={link.href}>{link.label} ↗</a>
+                    ))}
+                  </p>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="wrap">
+        <h2 class="section-title" id="about-title">
+          <span><span class="num">02</span>About</span>
+        </h2>
+        <div class="panel about">
+          <div class="bio">
+            {site.about.map((paragraph) => <p>{paragraph}</p>)}
+          </div>
+          <div class="side">
+            <h3 class="label">Tools</h3>
+            <ul class="tags" role="list">
+              {site.skills.map((skill) => <li>{skill}</li>)}
+            </ul>
+            <h3 class="label">Experience</h3>
+            <ol class="roles" role="list">
+              {
+                site.experience.map((role) => (
+                  <li>
+                    <p class="role-head">
+                      <strong>{role.title}</strong>, {role.org}
+                    </p>
+                    <p class="period">{role.period}</p>
+                    <p class="muted">{role.summary}</p>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact" aria-labelledby="contact-title">
+      <div class="wrap">
+        <h2 class="section-title" id="contact-title">
+          <span><span class="num">03</span>Contact</span>
+        </h2>
+        <div class="panel contact">
+          <p class="lead">
+            Have a project, a role, or a question? I'd like to hear about it.
+          </p>
+          <a class="email" href={`mailto:${site.email}`}>{site.email}</a>
+          <p class="contact-links">
+            {site.links.map((link) => <a href={link.href}>{link.label} ↗</a>)}
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p>© {year} {site.name}</p>
+      <p class="muted">
+        Background: Perlin worms from{" "}
+        <a href="http://libnoise.sourceforge.net/">libnoise</a> by Jason Bevins,
+        ported to WebGL.
+      </p>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  .wrap {
+    width: 100%;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .panel {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+
+  .eyebrow,
+  .label,
+  .year,
+  .period,
+  .num {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow,
+  .num {
+    color: var(--accent);
+  }
+
+  /* ---- nav ---- */
+
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 12px 0;
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: calc(var(--max) - 2 * var(--gutter));
+    margin: 0 var(--gutter);
+    padding: 10px 12px 10px 18px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel-strong);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  @media (min-width: 1072px) {
+    .nav-inner {
+      margin: 0 auto;
+    }
+  }
+
+  .brand {
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 650;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav nav {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nav nav a {
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+
+  .nav nav a:hover {
+    background: rgb(227 186 128 / 0.12);
+    color: var(--text);
+  }
+
+  /* ---- hero ---- */
+
+  .hero {
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - 72px);
+    padding: 48px 0 72px;
+  }
+
+  .hero-card {
+    max-width: 640px;
+    padding: clamp(24px, 5vw, 44px);
+  }
+
+  .hero h1 {
+    margin: 12px 0 16px;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+  }
+
+  .lead {
+    color: var(--muted);
+    font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+
+  .button:hover {
+    border-color: var(--accent);
+  }
+
+  .button.primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .button.primary:hover {
+    background: #efcb97;
+  }
+
+  .scroll-hint {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--panel);
+    color: var(--muted);
+    font: 500 0.8rem/1.4 var(--font-mono);
+  }
+
+  /* ---- sections ---- */
+
+  .section {
+    padding: 14vh 0;
+  }
+
+  .section-title {
+    margin-bottom: 20px;
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Headings sit on a small panel so they stay readable over the worms. */
+  .section-title > span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 18px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel-strong);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px;
+  }
+
+  .project-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .project h3 {
+    font-size: 1.15rem;
+  }
+
+  .project > p {
+    color: var(--muted);
+  }
+
+  .year,
+  .period {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: auto 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li {
+    padding: 3px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--accent);
+    font: 500 0.78rem/1.6 var(--font-mono);
+  }
+
+  .project-links,
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .project-links a,
+  .contact-links a,
+  .footer a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+
+  /* ---- about ---- */
+
+  .about {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: clamp(24px, 5vw, 56px);
+    padding: clamp(24px, 4vw, 40px);
+  }
+
+  @media (max-width: 760px) {
+    .about {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .bio {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 1.05rem;
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .label {
+    color: var(--muted);
+  }
+
+  .side .tags {
+    margin: 0 0 12px;
+  }
+
+  .roles {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .role-head {
+    font-size: 0.98rem;
+  }
+
+  .roles .muted {
+    margin-top: 4px;
+    font-size: 0.95rem;
+  }
+
+  /* ---- contact ---- */
+
+  .contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    max-width: 720px;
+    padding: clamp(24px, 4vw, 40px);
+  }
+
+  .email {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: clamp(1.4rem, 4.5vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .email:hover {
+    color: var(--accent);
+  }
+
+  /* ---- footer ---- */
+
+  .footer {
+    padding: 0 0 72px;
+    font-size: 0.88rem;
+  }
+
+  .footer .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    max-width: var(--max);
+  }
+
+  .footer p {
+    padding: 6px 12px;
+    border-radius: 12px;
+    background: var(--panel);
+  }
+</style>

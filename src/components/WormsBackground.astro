@@ -1,0 +1,130 @@
+---
+// Full-page Perlin-worms background. The animation is driven by scrolling:
+// every pixel scrolled (in either direction) advances it by framesPerPixel
+// frames, and it stays still otherwise.
+interface Props {
+  /** Animation frames per pixel scrolled. */
+  framesPerPixel?: number;
+  /** Number of worms (worms.cpp starts with 32). */
+  wormCount?: number;
+}
+
+const { framesPerPixel = 0.5, wormCount = 32 } = Astro.props;
+---
+
+<canvas
+  class="worms"
+  data-worms
+  data-frames-per-pixel={framesPerPixel}
+  data-worm-count={wormCount}
+  aria-hidden="true"></canvas>
+<p class="frame-counter" aria-hidden="true">
+  frame <span data-worms-frame>000000</span>
+</p>
+
+<style>
+  .worms {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .frame-counter {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2;
+    margin: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel);
+    backdrop-filter: blur(8px);
+    color: var(--muted);
+    font: 500 12px/1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+
+  .frame-counter span {
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  import { WormRenderer } from "../lib/worms/renderer";
+  import { createWorms } from "../lib/worms/worms";
+
+  const canvas = document.querySelector<HTMLCanvasElement>("[data-worms]")!;
+  const counter = document.querySelector<HTMLElement>("[data-worms-frame]");
+  const framesPerPixel = Number(canvas.dataset.framesPerPixel);
+  const worms = createWorms(Number(canvas.dataset.wormCount));
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+  let renderer: WormRenderer | null = null;
+  try {
+    renderer = new WormRenderer(canvas);
+  } catch (error) {
+    // The page's navy background stands in for the worms.
+    console.warn("Worm background disabled:", error);
+  }
+
+  if (renderer) {
+    const r = renderer;
+    let frame = 0;
+    let pendingFrames = 0;
+    let lastScrollY = window.scrollY;
+    let queued = false;
+
+    const render = () => {
+      queued = false;
+      const steps = Math.floor(pendingFrames);
+      pendingFrames -= steps;
+      for (let i = 0; i < steps; i++) {
+        for (const worm of worms) worm.update();
+      }
+      frame += steps;
+      r.draw(worms);
+      if (counter) counter.textContent = String(frame).padStart(6, "0");
+    };
+
+    const queueRender = () => {
+      if (!queued) {
+        queued = true;
+        requestAnimationFrame(render);
+      }
+    };
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        const scrollY = window.scrollY;
+        // With reduced motion the worms stay put; scrolling still works.
+        if (!reducedMotion.matches) {
+          pendingFrames += Math.abs(scrollY - lastScrollY) * framesPerPixel;
+        }
+        lastScrollY = scrollY;
+        if (pendingFrames >= 1) queueRender();
+      },
+      { passive: true },
+    );
+
+    // Also fires once on load, which draws frame 0.
+    new ResizeObserver(() => {
+      r.resize();
+      queueRender();
+    }).observe(canvas);
+
+    canvas.addEventListener("webglcontextlost", (event) => event.preventDefault());
+    canvas.addEventListener("webglcontextrestored", () => {
+      r.init();
+      r.resize();
+      queueRender();
+    });
+  }
+</script>
